@@ -75,19 +75,33 @@ humhub.module('ui.status', function (module, require, $) {
     };
 
     StatusBar.prototype.setContent = function (content, error) {
-        var that = this;
-        var $content = this.$.find(SELECTOR_CONTENT).html(content);
-        var $closeButton = $(module.template.closeButton);
-
-        if (error && module.config['showMore']) {
-            this._addShowMore($content, error);
+        if (!this.$ || !this.$.length) {
+            return this;
         }
-
-        $closeButton.on('click', function () {
-            that.hide();
-        });
-
-        $content.prepend($closeButton);
+    
+        var that = this;
+        var $content = this.$.find(SELECTOR_CONTENT);
+    
+        // Clean up previous event handlers
+        $content.find('.status-bar-close').off('click');
+    
+        try {
+            $content.html(content || '');
+            var $closeButton = $(module.template.closeButton);
+    
+            if (error && module.config['showMore']) {
+                this._addShowMore($content, error);
+            }
+    
+            $closeButton.on('click', function () {
+                that.hide();
+            });
+    
+            $content.prepend($closeButton);
+        } catch (e) {
+            console.error('Error setting status bar content:', e);
+        }
+    
         return this;
     };
 
