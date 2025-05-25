@@ -159,20 +159,32 @@ humhub.module('ui.loader', function (module, require, $) {
     };
 
     var initLoaderButton = function (node, evt) {
+        if (!node || !evt) {
+            return false;
+        }
+    
         var $node = (node instanceof $) ? node : $(node);
+        
+        if (!$node.length) {
+            return false;
+        }
+    
         var loader = hasLoader($node);
-
-        /**
-         * Prevent multiple mouse clicks, if originalEvent is present its a real mouse event otherwise its script triggered
-         * This is a workaround since yii version 2.0.10 changed the activeForm submission from $form.submit() to data.submitObject.trigger("click");
-         * which triggers this handler twice. Here we get sure not to block the script triggered submission.
-         */
+    
         if (loader && evt.originalEvent) {
             return false;
         } else if (loader) {
             return;
         }
-
+    
+        if (!module.template) {
+            console.error('Loader template not found');
+            return false;
+        }
+    
+        // Clean up any existing event handlers
+        $node.off('.humhub-loader');
+    
         // Adopt current color for the loader animation
         var color = $node.css('color') || '#ffffff';
         var $loader = $(module.template);
